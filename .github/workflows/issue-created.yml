@@ -21,6 +21,7 @@ jobs:
         if: github.event.issue.user.login != 'svrooij'
         run: |
           echo "This issue was not created by the authorized user."
+          echo "::error title=Unauthorized user::This issue was not created by the authorized user."
           exit 1
         # You probably should not compare against a hardcoded username in a real-world scenario.
         # Instead, consider using a secret or an environment variable to store the authorized username.
@@ -57,25 +58,27 @@ jobs:
               }
             }
           }
-          
-          echo "## Action details" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
 
           if ($sectionValues.ContainsKey("select_the_admin_action")) {
-            echo "- Action: *${sectionValues["select_the_admin_action"]}*" >> $GITHUB_STEP_SUMMARY
-            echo "action=${sectionValues["select_the_admin_action"]}" >> $GITHUB_OUTPUT
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "action=${sectionValues["select_the_admin_action"]}"
           }
           
           if ($sectionValues.ContainsKey("user")) {
-            echo "- User: *${sectionValues["user"]}*" >> $GITHUB_STEP_SUMMARY
-            echo "user=${sectionValues["user"]}" >> $GITHUB_OUTPUT
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "user=${sectionValues["user"]}"
           }
 
           if ($sectionValues.ContainsKey("reason_for_action")) {
-            echo "- Reason: *${sectionValues["reason_for_action"]}*" >> $GITHUB_STEP_SUMMARY
-            echo "reason=${sectionValues["reason_for_action"]}" >> $GITHUB_OUTPUT
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "reason=${sectionValues["reason_for_action"]}"
           }
 
+      - name: 💬 Summarize details
+        run: |
+          echo "## 🚀 Performing admin action" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Action: **${{ steps.parse_issue_body.outputs.action }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- User: **${{ steps.parse_issue_body.outputs.user }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Reason: ${{ steps.parse_issue_body.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
       # No need to install gh CLI, it is already available in the GitHub Actions environment.
       # - name: 📃 Install GitHub CLI
       #   run: sudo apt-get install -y gh
@@ -95,9 +98,6 @@ jobs:
           - Reason: ${{ steps.parse_issue_body.outputs.reason }}
           END
           )
-          echo "Commenting on issue..."
           gh issue comment "${{ github.event.issue.number }}" --body "$COMMENT" --repo "${{ github.repository }}"
-          echo "Closing issue..."
           gh issue close "${{ github.event.issue.number }}" --comment "Issue closed by [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})." --repo "${{ github.repository }}"
-          echo "Locking issue..."
           gh issue lock "${{ github.event.issue.number }}" --reason "resolved" --repo "${{ github.repository }}"
