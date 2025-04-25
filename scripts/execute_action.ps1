@@ -16,7 +16,7 @@ PROCESS {
     Write-Host "Failed to get access token. Please check your Azure CLI authentication."
     exit 1
   }
-  $graphToken = ConvertTo-SecureString -String $token.accessToken
+  $graphToken = ConvertTo-SecureString -String $token.accessToken -AsPlainText -Force
   # Connect to Microsoft Graph with the token as secure string
   Connect-MgGraph -AccessToken $graphToken -NoWelcome -ErrorAction Stop
 
