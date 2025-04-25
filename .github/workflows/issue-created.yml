@@ -60,18 +60,18 @@ jobs:
           }
 
           if ($sectionValues.ContainsKey("select_the_admin_action")) {
-            Write-Host "Action: $($sectionValues["select_the_admin_action"])"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "action=${sectionValues["select_the_admin_action"]}"
+            Write-Host "Action: $($sectionValues.select_the_admin_action)"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "action=$($sectionValues.select_the_admin_action)"
           }
           
           if ($sectionValues.ContainsKey("user")) {
-            Write-Host "User: $($sectionValues["user"])"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "user=${sectionValues["user"]}"
+            Write-Host "User: $($sectionValues.user)"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "user=$($sectionValues.user)"
           }
 
           if ($sectionValues.ContainsKey("reason_for_action")) {
-            Write-Host "Reason: $($sectionValues["reason_for_action"])"
-            Add-Content -Path $env:GITHUB_OUTPUT -Value "reason=${sectionValues["reason_for_action"]}"
+            Write-Host "Reason: $($sectionValues.reason_for_action)"
+            Add-Content -Path $env:GITHUB_OUTPUT -Value "reason=$($sectionValues.reason_for_action)"
           }
 
           Write-Host "Github output file:"
@@ -83,7 +83,7 @@ jobs:
         run: |
           echo "## 🚀 Performing admin action" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Issue: [#${{ github.event.issue.title }}](${{ github.event.issue.html_url }})" >> $GITHUB_STEP_SUMMARY
+          echo "- Issue: [${{ github.event.issue.title }}](${{ github.event.issue.html_url }}) #${{ github.event.issue.number }}" >> $GITHUB_STEP_SUMMARY
           echo "- Action: **${{ steps.parse_issue_body.outputs.action }}**" >> $GITHUB_STEP_SUMMARY
           echo "- User: **${{ steps.parse_issue_body.outputs.user }}**" >> $GITHUB_STEP_SUMMARY
           echo "- Reason: ${{ steps.parse_issue_body.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
@@ -99,7 +99,7 @@ jobs:
 
         run: |
           COMMENT=$(cat <<-END
-          We have received your request and will process it as soon as possible.
+          We have received your request and will [process](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) it as soon as possible.
 
           Details:
           - Action: *${{ steps.parse_issue_body.outputs.action }}*
@@ -107,6 +107,5 @@ jobs:
           - Reason: ${{ steps.parse_issue_body.outputs.reason }}
           END
           )
-          gh issue comment "${{ github.event.issue.number }}" --body "$COMMENT" --repo "${{ github.repository }}"
-          gh issue close "${{ github.event.issue.number }}" --comment "Issue closed by [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})." --repo "${{ github.repository }}"
+          gh issue close "${{ github.event.issue.number }}" --comment "$COMMENT" --repo "${{ github.repository }}"
           gh issue lock "${{ github.event.issue.number }}" --reason "resolved" --repo "${{ github.repository }}"
