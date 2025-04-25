@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Blog
+    url: https://svrooij.io
+    about: This can be any link you want to show in the issue template

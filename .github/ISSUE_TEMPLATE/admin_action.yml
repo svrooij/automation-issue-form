@@ -1,0 +1,35 @@
+name: Execute admin action
+description: Request to execute an admin action
+title: "[Admin Action] {{ action }} for {{ user }}"
+labels: ["admin-request"]
+assignees: [svrooij]
+body:
+  - type: dropdown
+    id: action
+    attributes:
+      label: Select the admin action
+      description: Choose the type of admin action you are requesting.
+      options:
+        - "Load user data"
+        - "Reset password"
+        - "Make global admin"
+        - "Remove global admin"
+      default: 0
+  - type: dropdown
+    id: user
+    attributes:
+      label: User
+      description: Select user to perform the action on.
+      options:
+        - "demo-user-1@CodingStephan.onmicrosoft.com"
+        - "second-user@svrooij.io"
+        - "expand-to-your-liking...."
+      default: 0
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for action
+      description: This will be used to document the reason for the action in the issue.
+      placeholder: We lost access to the account and need to reset the password.
+    validations:
+      required: true
