@@ -13,18 +13,26 @@ Can we have the user details of this user please?
 "@
 
 # Extract the values from the body for each section
-$sections = $body -split "\n\n" | ForEach-Object { $_.Trim() }
-$sections = $sections | Where-Object { $_ -ne "" } # Remove empty sections
+$lines = $body -split "\n" | ForEach-Object { $_.Trim() }
+$lines = $lines | Where-Object { $_ -ne "" } # Remove empty sections
 
 $sectionValues = @{}
-foreach ($section in $sections) {
-    $lines = $section -split "\n" | ForEach-Object { $_.Trim() }
-    $sectionName = $lines[0].Replace("### ", "").Trim().ToLower()
-    $sectionName = $sectionName -replace '[^a-zA-Z0-9_]', '_' # Remove special characters
-    $sectionContent = $lines[1..($lines.Count - 1)] -join "`n"
-    $sectionValues[$sectionName] = $sectionContent
+for ($i = 0; $i -lt $lines.Count; $i++) {
+  # if line starts with ###, it is a section header
+  if ($lines[$i].StartsWith("### ")) {
+    $sectionName = $lines[$i].Remove(0,4).Trim().Replace(" ", "_").ToLower()
+    $sectionValues[$sectionName] = ""
+    $x = $i+1 # Move to the next line
+    # Collect all lines until the next section header or end of array
+    while ($x -lt $lines.Count -and $lines[$x] -notmatch "^### ") {
+      # Append the line to the section value
+      $sectionValues[$sectionName] += $lines[$x].Trim()
+      $x++
+    }
+  }
 }
 
-if ($sectionValues.ContainsKey("select_the_admin_action")) {
-    ...
+Write-Host "Extracted Values:"
+foreach ($key in $sectionValues.Keys) {
+    Write-Host "$key > $($sectionValues[$key])"
 }
