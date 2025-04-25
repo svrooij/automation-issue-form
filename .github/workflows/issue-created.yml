@@ -86,7 +86,18 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
         run: |
+          COMMENT=$(cat <<-END
+          We have received your request and will process it as soon as possible.
+
+          Details:
+          - Action: *${{ steps.parse_issue_body.outputs.action }}*
+          - User: *${{ steps.parse_issue_body.outputs.user }}*
+          - Reason: ${{ steps.parse_issue_body.outputs.reason }}
+          END
+          )
+          echo "Commenting on issue..."
+          gh issue comment "${{ github.event.issue.number }}" --body "$COMMENT" --repo "${{ github.repository }}"
           echo "Closing issue..."
-          gh issue close "${{ github.event.issue.number }}" --comment "Issue closed by workflow." --repo "${{ github.repository }}"
+          gh issue close "${{ github.event.issue.number }}" --comment "Issue closed by [this workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})." --repo "${{ github.repository }}"
           echo "Locking issue..."
           gh issue lock "${{ github.event.issue.number }}" --reason "resolved" --repo "${{ github.repository }}"
