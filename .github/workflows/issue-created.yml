@@ -15,8 +15,6 @@ jobs:
     name: 🧑‍💻 Auto issue handling
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v3
 
       - name: ❌ Block unauthorized users
         if: github.event.issue.user.login != 'svrooij'
@@ -80,10 +78,6 @@ jobs:
             Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "- Reason: *$($sectionValues.reason_for_action)*"
           }
 
-      # No need to install gh CLI, it is already available in the GitHub Actions environment.
-      # - name: 📃 Install GitHub CLI
-      #   run: sudo apt-get install -y gh
-
       - name: 🧑‍💻 Checkout scripts
         uses: actions/checkout@v4
 
@@ -93,20 +87,18 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           allow-no-subscriptions: true
-          #enable-AzPSSession: true
       
       - name: ✅ Execute script
         run: ./scripts/execute_action.ps1 -Action "${{ steps.parse_issue_body.outputs.action }}" -User "${{ steps.parse_issue_body.outputs.user }}"
         shell: pwsh
  
       - name: 🔒 Lock and close issue
-        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
 
         run: |
           COMMENT=$(cat <<-END
-          Your requests has been [processed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          ✅ Your requests has been [processed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
 
           Details:
           - Action: *${{ steps.parse_issue_body.outputs.action }}*
@@ -116,3 +108,16 @@ jobs:
           )
           gh issue close "${{ github.event.issue.number }}" --comment "$COMMENT" --repo "${{ github.repository }}"
           gh issue lock "${{ github.event.issue.number }}" --reason "resolved" --repo "${{ github.repository }}"
+      
+      - name: 🔒 Lock and close issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+        run: |
+          COMMENT=$(cat <<-END
+          ❌ Your requests could not be [processed](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+          END
+          )
+          gh issue close "${{ github.event.issue.number }}" --comment "$COMMENT" --repo "${{ github.repository }}"
+          gh issue lock "${{ github.event.issue.number }}" --reason "resolved" --repo "${{ github.repository }}"       
