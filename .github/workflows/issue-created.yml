@@ -10,6 +10,7 @@ jobs:
   handle-issue:
     permissions:
       issues: write # Required to lock and close issues
+      id-token: write # Required to use the GitHub CLI
     runs-on: ubuntu-latest
     name: 🧑‍💻 Auto issue handling
 
@@ -82,6 +83,21 @@ jobs:
       # No need to install gh CLI, it is already available in the GitHub Actions environment.
       # - name: 📃 Install GitHub CLI
       #   run: sudo apt-get install -y gh
+
+      - name: 🧑‍💻 Checkout scripts
+        uses: actions/checkout@v4
+
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+          enable-AzPSSession: true
+      
+      - name: ✅ Execute script
+        run: ./scripts/execute_action.ps1 -Action "${{ steps.parse_issue_body.outputs.action }}" -User "${{ steps.parse_issue_body.outputs.user }}"
+        shell: pwsh
  
       - name: 🔒 Lock and close issue
         if: always()
