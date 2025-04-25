@@ -11,9 +11,14 @@ BEGIN {
 }
 
 PROCESS {
-  $graphToken = Get-AzAccessToken -ResourceUrl 'https://graph.microsoft.com' -AsSecureString
+  $token = $(az account get-access-token --resource https://graph.microsoft.com) | ConvertFrom-Json
+  if (-null -eq $token) {
+    Write-Host "Failed to get access token. Please check your Azure CLI authentication."
+    exit 1
+  }
+  $graphToken = $token.accessToken
   # Connect to Microsoft Graph with the token as secure string
-  Connect-MgGraph -AccessToken $graphToken.Token -NoWelcome -ErrorAction Stop
+  Connect-MgGraph -AccessToken $graphToken -NoWelcome -ErrorAction Stop
 
   if($Action == "Load user data") {
     $userdata = Get-MgUser -UserId $User -Property DisplayName, Id, AccountEnabled -ErrorAction Stop
