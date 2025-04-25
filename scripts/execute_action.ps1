@@ -18,9 +18,12 @@ PROCESS {
   }
   $graphToken = ConvertTo-SecureString -String $token.accessToken -AsPlainText -Force
   # Connect to Microsoft Graph with the token as secure string
-  Connect-MgGraph -AccessToken $graphToken -NoWelcome -ErrorAction Stop
+  Connect-MgGraph -AccessToken $graphToken -ErrorAction Stop
 
-  if($Action == "Load user data") {
+  Write-Host "Connect command executed successfully."
+
+  if($Action -eq "Load user data") {
+    Write-Host "Loading user data for user: $User"
     $userdata = Get-MgUser -UserId $User -Property DisplayName, Id, AccountEnabled -ErrorAction Stop
     Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "### User data loaded successfully`n"
     Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "- DisplayName: $($userdata.DisplayName)"
