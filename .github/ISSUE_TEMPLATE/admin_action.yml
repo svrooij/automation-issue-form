@@ -1,6 +1,6 @@
 name: Execute admin action
 description: Request to execute an admin action
-title: "[Admin Action] {{ action }} for {{ user }}"
+title: "[Admin Action] "
 labels: ["admin-request"]
 assignees: [svrooij]
 body:
