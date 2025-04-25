@@ -74,22 +74,19 @@ jobs:
         run: |
           echo "## 🚀 Performing admin action" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Action: `${{ steps.parse_issue_body.outputs.action }}`" >> $GITHUB_STEP_SUMMARY
-          echo "- User: `${{ steps.parse_issue_body.outputs.user }}`" >> $GITHUB_STEP_SUMMARY
-          echo "- Reason: `${{ steps.parse_issue_body.outputs.reason }}`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## 📝 Issue Details" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Body:" >> $GITHUB_STEP_SUMMARY
-          echo "```md" >> $GITHUB_STEP_SUMMARY
-          echo "${{ github.event.issue.body }}" >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY
+          echo "- Action: **${{ steps.parse_issue_body.outputs.action }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- User: **${{ steps.parse_issue_body.outputs.user }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Reason: ${{ steps.parse_issue_body.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-      - name: 📃 Install GitHub CLI
-        run: sudo apt-get install -y gh
+      # No need to install gh CLI, it is already available in the GitHub Actions environment.
+      # - name: 📃 Install GitHub CLI
+      #   run: sudo apt-get install -y gh
  
       - name: 🔒 Lock and close issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
 
         run: |
           echo "Closing issue..."
