@@ -10,7 +10,7 @@ jobs:
   handle-issue:
     permissions:
       issues: write # Required to lock and close issues
-      id-token: write # Required to use the GitHub CLI
+      id-token: write # Required to use the ID token for Azure login
     runs-on: ubuntu-latest
     name: 🧑‍💻 Auto issue handling
 
@@ -60,7 +60,7 @@ jobs:
             }
           }
 
-          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "### 📜 Issue Body Details`n"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "### 📜 Issue Body Details`n- Issue: [#${{ github.event.issue.number }}](${{ github.event.issue.html_url }})"
 
           if ($sectionValues.ContainsKey("select_the_admin_action")) {
             Write-Host "Action: $($sectionValues.select_the_admin_action)"
