@@ -57,27 +57,24 @@ jobs:
               }
             }
           }
+          
+          echo "## Action details" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
 
           if ($sectionValues.ContainsKey("select_the_admin_action")) {
-            echo "action=${sectionValues["select_the_admin_action"]}" >> $GITHUB_ENV
+            echo "- Action: *${sectionValues["select_the_admin_action"]}*" >> $GITHUB_STEP_SUMMARY
+            echo "action=${sectionValues["select_the_admin_action"]}" >> $GITHUB_OUTPUT
           }
           
           if ($sectionValues.ContainsKey("user")) {
-            echo "user=${sectionValues["user"]}" >> $GITHUB_ENV
+            echo "- User: *${sectionValues["user"]}*" >> $GITHUB_STEP_SUMMARY
+            echo "user=${sectionValues["user"]}" >> $GITHUB_OUTPUT
           }
 
           if ($sectionValues.ContainsKey("reason_for_action")) {
-            echo "reason=${sectionValues["reason_for_action"]}" >> $GITHUB_ENV
+            echo "- Reason: *${sectionValues["reason_for_action"]}*" >> $GITHUB_STEP_SUMMARY
+            echo "reason=${sectionValues["reason_for_action"]}" >> $GITHUB_OUTPUT
           }
-
-      - name: 💬 Summarize details
-        run: |
-          echo "## 🚀 Performing admin action" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Action: **${{ steps.parse_issue_body.outputs.action }}**" >> $GITHUB_STEP_SUMMARY
-          echo "- User: **${{ steps.parse_issue_body.outputs.user }}**" >> $GITHUB_STEP_SUMMARY
-          echo "- Reason: ${{ steps.parse_issue_body.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
 
       # No need to install gh CLI, it is already available in the GitHub Actions environment.
       # - name: 📃 Install GitHub CLI
